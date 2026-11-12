@@ -19,3 +19,7 @@ Hvor mange ganger skjer det i løpet av løkken? 10_000_000 - 10_000 =
 det betyr at forskyvningen av de 9_999 elementene skjer 9_990_000 ganger.
 Totalt gjennom hele løkken utfører programmet altså 9_990_000 \* 9_999 =
 99_890_010_000 referansekopieringer. (Nesten 100 Milliarder)!
+
+# Oppgave 1
+
+Tiden gikk ned til ~580 ms.
