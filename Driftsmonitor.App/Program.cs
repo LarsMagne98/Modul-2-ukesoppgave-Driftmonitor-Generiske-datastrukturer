@@ -39,11 +39,21 @@ for (var i = 0; i < 200; i++)
 
     if (i == 137)
     {
-        WriteErrorReports.WriteLogErrorReports(blackBox, "Databasen svarte ikke");
+        WriteErrorReports.WriteLogErrorReport(blackBox,
+        "Databasen svarte ikke",
+        entry => $"{entry.Time:HH:mm:ss} [{entry.Level} {entry.Message}]");
         break;
     }
 }
 
+requests.Add(new RequestLog("/api/orders", 850, 500));
+if (requests.Newest.DurationMs > 500)
+{
+    WriteErrorReports.WriteLogErrorReport(
+        requests,
+        "En forespørsel tok for lang tid",
+        request => $"{request.Endpoint}: {request.DurationMs} ms, status {request.StatusCode}");
+}
 // Console.WriteLine("=== Siste sensormålinger ===");
 // foreach (var r in readings)
 // {

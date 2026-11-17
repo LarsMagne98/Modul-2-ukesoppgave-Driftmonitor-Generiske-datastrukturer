@@ -2,13 +2,18 @@ namespace Driftsmonitor.Core;
 
 public class WriteErrorReports
 {
-    public static void WriteLogErrorReports(RingBuffer<LogEntry> log, string message)
+    public static void WriteLogErrorReport<T>(
+        RingBuffer<T> enteries,
+        string message,
+        Func<T, string> formatEntry)
     {
         Console.WriteLine($"FEIL: {message}");
-        Console.WriteLine($"---- de {log.Count} siste hendelsene før feilen----");
-        foreach (var entry in log)
+        Console.WriteLine($"---- de {enteries.Count} siste hendelsene før feilen ----");
+
+        foreach (var entry in enteries)
         {
-            Console.WriteLine($"{entry.Time:HH:mm:ss} [{entry.Level}] {entry.Message}");
+            Console.WriteLine(formatEntry(entry));
         }
     }
+
 }
