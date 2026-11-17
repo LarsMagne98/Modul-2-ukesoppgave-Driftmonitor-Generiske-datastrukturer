@@ -23,3 +23,17 @@ Totalt gjennom hele løkken utfører programmet altså 9_990_000 \* 9_999 =
 # Oppgave 1
 
 Tiden gikk ned til ~580 ms.
+
+## Endring fra int til string:
+
+I Program.cs: Måtte bare endre "RingBuffer<int>" til "RingBuffer<string>", og hva som ble lagt til i listen.
+Endret ingenting i RingBuffer<T>.
+
+# Oppgave 2
+
+Tiden gikk ned til ~100 ms.
+Minnebruk til 0 MB.
+
+# Oppgave 3
+
+Mye Ai hjelp til DataGeneratoren.

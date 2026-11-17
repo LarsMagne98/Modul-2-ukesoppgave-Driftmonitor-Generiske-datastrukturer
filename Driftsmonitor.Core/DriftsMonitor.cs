@@ -1,8 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿using System.Collections;
 namespace Driftsmonitor.Core;
 
-public class RingBuffer<T>
+public record LogEntry(DateTime Time, string Level, string Message);
+public record SensorReading(string SensorId, double Value, DateTime Time);
+public record RequestLog(string Endpoint, int DurationMs, int StatusCode);
+
+public class RingBuffer<T> : IEnumerable<T>
 {
     private readonly T[] _items;
     private int _start;
@@ -96,4 +99,15 @@ public class RingBuffer<T>
 
         return result;
     }
+
+    public IEnumerator<T> GetEnumerator()
+    {
+        for (int i = 0; i < _count; i++)
+        {
+            yield return this[i];
+        }
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
 }
