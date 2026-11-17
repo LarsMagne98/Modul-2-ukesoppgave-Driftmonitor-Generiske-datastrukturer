@@ -33,15 +33,26 @@ numbers.Add(20);
 numbers.Add(30);
 numbers.Add(40);
 
-Console.WriteLine("=== Siste sensormålinger ===");
-foreach (var r in readings)
+for (var i = 0; i < 200; i++)
 {
-    Console.WriteLine(r);
+    blackBox.Add(new LogEntry(DateTime.Now, "INFO", $"Behandlet ordre {i}"));
+
+    if (i == 137)
+    {
+        WriteErrorReports.WriteLogErrorReports(blackBox, "Databasen svarte ikke");
+        break;
+    }
 }
 
-Console.WriteLine($"\nAntall feilmeldinger i blackBox: {blackBox.Count(l => l.Level == "ERROR")}");
-Console.WriteLine($"Snitt-responstid (ms): {requests.Average(r => r.DurationMs):F1}");
-Console.WriteLine($"Tall i bufferet: {string.Join(", ", numbers)}");
+// Console.WriteLine("=== Siste sensormålinger ===");
+// foreach (var r in readings)
+// {
+//     Console.WriteLine(r);
+// }
+
+// Console.WriteLine($"\nAntall feilmeldinger i blackBox: {blackBox.Count(l => l.Level == "ERROR")}");
+// Console.WriteLine($"Snitt-responstid (ms): {requests.Average(r => r.DurationMs):F1}");
+// Console.WriteLine($"Tall i bufferet: {string.Join(", ", numbers)}");
 
 
 
