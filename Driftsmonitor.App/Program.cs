@@ -13,7 +13,7 @@ readings.Add(new SensorReading("ein ID", 13.42, DateTime.Now));
 requests.Add(new RequestLog("Heima", 100, 8888));
 numbers.Add(4);
 
-foreach (var log in DataGenerator.GenerateLogs(60)) // 60 > 50, så de 10 eldste overskrives
+foreach (var log in DataGenerator.GenerateLogs(60))
 {
     blackBox.Add(log);
 }
@@ -28,41 +28,42 @@ foreach (var req in DataGenerator.GenerateRequests(25))
     requests.Add(req);
 }
 
-numbers.Add(10);
-numbers.Add(20);
-numbers.Add(30);
-numbers.Add(40);
+var windows = new Dictionary<string, RingBuffer<SensorReading>>();
 
-for (var i = 0; i < 200; i++)
+string[] sensors = ["temp-kjeller", "temp-loft", "temp-ute"];
+var random = new Random(42);
+
+for (int i = 0; i < 100; i++)
 {
-    blackBox.Add(new LogEntry(DateTime.Now, "INFO", $"Behandlet ordre {i}"));
-
-    if (i == 137)
+    foreach (var sensorId in sensors)
     {
-        WriteErrorReports.WriteLogErrorReport(blackBox,
-        "Databasen svarte ikke",
-        entry => $"{entry.Time:HH:mm:ss} [{entry.Level} {entry.Message}]");
-        break;
+        var reading = new SensorReading(sensorId, 15 + random.NextDouble() * 10, DateTime.Now);
+
+        if (!windows.TryGetValue(sensorId, out var window))
+        {
+            window = new RingBuffer<SensorReading>(10);
+            windows[sensorId] = window;
+        }
+
+        window.Add(reading);
     }
 }
 
-requests.Add(new RequestLog("/api/orders", 850, 500));
-if (requests.Newest.DurationMs > 500)
-{
-    WriteErrorReports.WriteLogErrorReport(
-        requests,
-        "En forespørsel tok for lang tid",
-        request => $"{request.Endpoint}: {request.DurationMs} ms, status {request.StatusCode}");
-}
-// Console.WriteLine("=== Siste sensormålinger ===");
-// foreach (var r in readings)
-// {
-//     Console.WriteLine(r);
-// }
+foreach (var (sensorId, window) in windows)
+    Console.WriteLine($"{sensorId}: {MovingAverage(window):F1} °C (siste {window.Count} målinger)");
 
-// Console.WriteLine($"\nAntall feilmeldinger i blackBox: {blackBox.Count(l => l.Level == "ERROR")}");
-// Console.WriteLine($"Snitt-responstid (ms): {requests.Average(r => r.DurationMs):F1}");
-// Console.WriteLine($"Tall i bufferet: {string.Join(", ", numbers)}");
+
+// TODO: Skriv om til LINQ
+static double MovingAverage(RingBuffer<SensorReading> window)
+{
+    if (window.Count == 0) return 0;
+
+    double sum = 0;
+    foreach (var reading in window)
+        sum += reading.Value;
+
+    return sum / window.Count;
+}
 
 
 

@@ -37,3 +37,9 @@ Minnebruk til 0 MB.
 # Oppgave 3
 
 Mye Ai hjelp til DataGeneratoren.
+
+# Oppgave 4
+
+-
+
+# Oppgave 5
