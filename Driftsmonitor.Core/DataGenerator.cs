@@ -43,11 +43,13 @@ public static class DataGenerator
 
     public static IEnumerable<RequestLog> GenerateRequests(int count)
     {
+        int seed = 1;
+        Random rnd = new Random(seed);
         for (int i = 0; i < count; i++)
         {
-            string endpoint = Endpoints[Random.Shared.Next(Endpoints.Length)];
-            int durationMs = Random.Shared.Next(18, 450);
-            int statusCode = StatusCodes[Random.Shared.Next(StatusCodes.Length)];
+            string endpoint = Endpoints[rnd.Next(Endpoints.Length)];
+            int durationMs = rnd.Next(50, 901);
+            int statusCode = StatusCodes[rnd.Next(StatusCodes.Length)];
 
             yield return new RequestLog(endpoint, durationMs, statusCode);
         }

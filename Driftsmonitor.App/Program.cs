@@ -2,30 +2,59 @@
 
 var watch = System.Diagnostics.Stopwatch.StartNew();
 
+//  ----------- RingBuffer<T> -----------
+Console.WriteLine("--- BUFFER ---");
 
+var buffer = new RingBuffer<int>(10_000);
+
+for (var i = 0; i < 10_000_000; i++)
+{
+    buffer.Add(i);
+}
+
+watch.Stop();
+
+Console.WriteLine($"Antall i buffer: {buffer.Count}");
+Console.WriteLine($"Eldste: {buffer.Oldest}");
+Console.WriteLine($"Nyeste: {buffer.Newest}");
+Console.WriteLine($"Tid: {watch.ElapsedMilliseconds} ms");
+Console.WriteLine($"Minnebruk: {GC.GetTotalMemory(true) / 1024 / 1024} MB");
+
+
+// ---------- LogEntry --------------
+Console.WriteLine("");
+Console.WriteLine("--- BLACKBOX ---");
 var blackBox = new RingBuffer<LogEntry>(50);
-var readings = new RingBuffer<SensorReading>(10);
-var requests = new RingBuffer<RequestLog>(100);
-var numbers = new RingBuffer<int>(3);
-
 blackBox.Add(new LogEntry(DateTime.Now, "Info", "Ei melding"));
-readings.Add(new SensorReading("ein ID", 13.42, DateTime.Now));
-requests.Add(new RequestLog("Heima", 100, 8888));
-numbers.Add(4);
 
 foreach (var log in DataGenerator.GenerateLogs(60))
 {
     blackBox.Add(log);
 }
 
+for (var i = 0; i < 200; i++)
+{
+    blackBox.Add(new LogEntry(DateTime.Now, "INFO", $"Behandlet ordre {i}"));
+
+    if (i == 137)
+    {
+        WriteErrorReports.WriteErrorReport(blackBox, "Databasen svarte ikke", entry => entry.ToString());
+        break;
+    }
+}
+
+
+
+
+// -------- SensorReading ---------------
+Console.WriteLine("");
+Console.WriteLine("--- READINGS ---");
+
+var readings = new RingBuffer<SensorReading>(10);
+readings.Add(new SensorReading("ein ID", 13.42, DateTime.Now));
 foreach (var reading in DataGenerator.GenerateReadings(10))
 {
     readings.Add(reading);
-}
-
-foreach (var req in DataGenerator.GenerateRequests(25))
-{
-    requests.Add(req);
 }
 
 var windows = new Dictionary<string, RingBuffer<SensorReading>>();
@@ -47,20 +76,35 @@ for (int i = 0; i < 100; i++)
 
         window.Add(reading);
     }
+
+    if (i == 9 || i == 10 || i == 49 || i == 99)
+    {
+        Console.WriteLine($"Etter {i + 1} målinger per sensor:");
+
+        foreach (var (sensorId, window) in windows)
+        {
+            Console.WriteLine(
+                $"{sensorId}: snitt {window.MovingAverage():F1} °C, " +
+                $"eldste måling {window.Oldest.Value:F1} °C");
+        }
+    }
 }
 
-foreach (var (sensorId, window) in windows)
+// ------------ RequestLog ------------------
+Console.WriteLine("");
+Console.WriteLine("--- REQUESTS ---");
+
+var requests = new RingBuffer<RequestLog>(100);
+requests.Add(new RequestLog("Heima", 100, 8888));
+
+foreach (var req in DataGenerator.GenerateRequests(500))
 {
-    Console.WriteLine($"{sensorId}: {window.MovingAverage():F1} °C (siste {window.Count} målinger)");
+    requests.Add(req);
 }
+var slowest = requests.SlowestCall();
+Console.WriteLine($"Requests over 500: {requests.MoreThan_FiveHundred()}");
+Console.WriteLine($"Tregeste kall: {slowest.Endpoint}, {slowest.DurationMs} ms");
 
+// ---------------------------------------------------
 
-
-watch.Stop();
-
-// Console.WriteLine($"Antall i buffer: {buffer.Count}");
-// Console.WriteLine($"Eldste: {buffer.Oldest}");
-// Console.WriteLine($"Nyeste: {buffer.Newest}");
-Console.WriteLine($"Tid: {watch.ElapsedMilliseconds} ms");
-Console.WriteLine($"Minnebruk: {GC.GetTotalMemory(true) / 1024 / 1024} MB");
 
