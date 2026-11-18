@@ -50,19 +50,8 @@ for (int i = 0; i < 100; i++)
 }
 
 foreach (var (sensorId, window) in windows)
-    Console.WriteLine($"{sensorId}: {MovingAverage(window):F1} °C (siste {window.Count} målinger)");
-
-
-// TODO: Skriv om til LINQ
-static double MovingAverage(RingBuffer<SensorReading> window)
 {
-    if (window.Count == 0) return 0;
-
-    double sum = 0;
-    foreach (var reading in window)
-        sum += reading.Value;
-
-    return sum / window.Count;
+    Console.WriteLine($"{sensorId}: {window.MovingAverage():F1} °C (siste {window.Count} målinger)");
 }
 
 

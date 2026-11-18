@@ -43,3 +43,5 @@ Mye Ai hjelp til DataGeneratoren.
 -
 
 # Oppgave 5
+
+RingBuffer<SensorReading> implementerer IEnumerable<SensorReading>, derfor kan LINQ gå gjennom målingene. Average bruker Value fra hver måling til å beregne gjennomsnittet. Jeg sjekker først om bufferen er tom, fordi Average ellers ikke kan beregne et gjennomsnitt.

@@ -46,7 +46,7 @@ public class RingBuffer<T> : IEnumerable<T>
         {
             if (index < 0 || index >= _count)
             {
-                throw new NotImplementedException();
+                throw new ArgumentOutOfRangeException();
             }
 
             return _items[(_start + index) % Capacity];
@@ -59,7 +59,7 @@ public class RingBuffer<T> : IEnumerable<T>
         {
             if (_count == 0)
             {
-                throw new NotImplementedException("Bufferen er tom");
+                throw new InvalidOperationException("Bufferen er tom");
             }
 
             return _items[_start];
@@ -72,7 +72,7 @@ public class RingBuffer<T> : IEnumerable<T>
         {
             if (_count == 0)
             {
-                throw new NotImplementedException("Bufferen er tom");
+                throw new InvalidOperationException("Bufferen er tom");
             }
 
             int index = (_start + _count - 1) % Capacity;
